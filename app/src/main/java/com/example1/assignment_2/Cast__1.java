@@ -144,4 +144,21 @@ public class Cast__1 implements Serializable
         this.order = order;
     }
 
+    @Override
+    public String toString() {
+        return "Cast__1{" +
+                "adult=" + adult +
+                ", gender=" + gender +
+                ", id=" + id +
+                ", knownForDepartment='" + knownForDepartment + '\'' +
+                ", name='" + name + '\'' +
+                ", originalName='" + originalName + '\'' +
+                ", popularity=" + popularity +
+                ", profilePath=" + profilePath +
+                ", castId=" + castId +
+                ", character='" + character + '\'' +
+                ", creditId='" + creditId + '\'' +
+                ", order=" + order +
+                '}';
+    }
 }

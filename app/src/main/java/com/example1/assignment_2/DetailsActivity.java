@@ -2,18 +2,17 @@ package com.example1.assignment_2;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -27,7 +26,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class DetailsActivity extends AppCompatActivity {
-    Cast__1 movieResponse;
+    Cast movieResponse;
     Result result;
     OkHttpClient client = new OkHttpClient();
 
@@ -44,22 +43,47 @@ public class DetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+
+        StrictMode.setThreadPolicy(policy);
 
         setContentView(R.layout.activity_details);
 
         result = (Result) getIntent().getSerializableExtra("result");
-        RelativeLayout rl = (RelativeLayout) findViewById(R.id.List_view);
-        TextView t=(TextView) rl.findViewById(R.id.text_view);
-        t.setText(result.getOverview());
-        RelativeLayout rl2 = (RelativeLayout) findViewById(R.id.view);
+        TextView titleView = findViewById(R.id.title);
+        TextView DetailsView = findViewById(R.id.detailText);
+        TextView ratingTextView = findViewById(R.id.ratingTextView);
 
-        RecyclerView rv= findViewById(R.id.movie_list);
+        RatingBar ratingBar = findViewById(R.id.ratingBar);
+        ImageView bannerImage = findViewById(R.id.banner);
+        ImageView posterImage = findViewById(R.id.poster);
+
+        titleView.setText(result.getTitle());
+        DetailsView.setText(result.getOverview());
+        ratingTextView.setText(""+result.getVoteAverage());
+
+        ratingBar.setRating((float) result.getVoteAverage());
+
+        String poster = "https://image.tmdb.org/t/p/w500" + result.getPosterPath();
+        String banner = "https://image.tmdb.org/t/p/w500" + result.getBackdropPath();
+        Glide.with(DetailsActivity.this)
+                .load(banner)
+                .centerCrop()
+                .into(bannerImage);
+
+
+        Glide.with(DetailsActivity.this)
+                .load(poster)
+                .centerCrop()
+                .into(posterImage);
+
+        RecyclerView rv= findViewById(R.id.cast_list);
         rv.setLayoutManager(new LinearLayoutManager(this,RecyclerView.HORIZONTAL,false));
-        rv.setAdapter(new DetailsActivity.MyAdapter2());
         try {
             String data = run("https://api.themoviedb.org/3/movie/19404/credits?api_key=3fa9058382669f72dcb18fb405b7a831&fbclid=IwAR3CVWAaeTKdhJBRNRi70D2QJi1muQl4TfM-vqaXWnA2N6vB4oBpoCqVKIg");
-            movieResponse= new Gson().fromJson(data,Cast__1.class);
-
+            movieResponse= new Gson().fromJson(data,Cast.class);
+            System.out.println("Test  "+movieResponse.toString());
+            rv.setAdapter(new DetailsActivity.MyAdapter2());
         }
         catch (IOException e)
         {
@@ -78,8 +102,7 @@ public class DetailsActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
-            holder.textView.setText(movieResponse.getName());
-
+            holder.textView.setText(movieResponse.getCast().get(position).getName());
 
             Glide.with(getApplicationContext())
                     .load("https://api.themoviedb.org/3/movie/19404/credits?api_key=3fa9058382669f72dcb18fb405b7a831&fbclid=IwAR3CVWAaeTKdhJBRNRi70D2QJi1muQl4TfM-vqaXWnA2N6vB4oBpoCqVKIg"+movieResponse.getCast().get(position).getProfilePath())
@@ -91,7 +114,7 @@ public class DetailsActivity extends AppCompatActivity {
 
         @Override
         public int getItemCount() {
-            return movieResponse.getCastId().size();
+            return movieResponse.getCast().size();
         }
     }
     class MovieViewHolder extends RecyclerView.ViewHolder{

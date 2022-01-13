@@ -45,4 +45,12 @@ public class Cast implements Serializable
         this.crew = crew;
     }
 
+    @Override
+    public String toString() {
+        return "Cast{" +
+                "id=" + id +
+                ", cast=" + cast +
+                ", crew=" + crew +
+                '}';
+    }
 }
